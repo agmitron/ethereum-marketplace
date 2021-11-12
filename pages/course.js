@@ -16,3 +16,5 @@ export default function Course() {
     </div>
   )
 }
+
+Course.Layout = BaseLayout
