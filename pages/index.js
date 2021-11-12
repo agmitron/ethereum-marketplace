@@ -5,11 +5,10 @@ import { BaseLayout } from "@components/ui/layout"
 import { getAllCourses } from "@content/courses/fetcher"
 import { useWeb3 } from "@components/providers"
 
-export default function Home({courses}) {
-  const { test } = useWeb3()
+export default function Home({ courses }) {
+  const { web3, isLoading } = useWeb3()
   return (
     <>
-      { test }
       <Hero />
       <CourseList
         courses={courses}
