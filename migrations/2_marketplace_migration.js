@@ -1,5 +1,5 @@
-const CourseMarketplaceMigration = artifacts.require("CourseMarketplace");
+const MarketplaceMigration = artifacts.require("CourseMarketplace");
 
 module.exports = function (deployer) {
-  deployer.deploy(CourseMarketplaceMigration);
+  deployer.deploy(MarketplaceMigration);
 };
