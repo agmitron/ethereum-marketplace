@@ -28,8 +28,9 @@ export default function Marketplace({courses}) {
     )
 
     const value = web3.utils.toWei(String(order.price))
-
+    console.log({value})
     try {
+      console.log(contract.methods)
       const result = await contract.methods.purchaseCourse(
         hexCourseId,
         proof
