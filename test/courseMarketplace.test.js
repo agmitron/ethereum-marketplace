@@ -132,10 +132,12 @@ contract('CourseMarketplace', accounts => {
 
   describe('Deactivate course', () => {
     let courseHash2 = null
+    let currentOwner = null
 
     before(async () => {
       await _contract.purchaseCourse(courseId2, proof2, { from: buyer, value })
       courseHash2 = await _contract.getCourseHashAtIndex(1)
+      currentOwner = await _contract.getContractOwner()
     })
 
     it('should NOT be able to deactivate this course by NOT contract owner', async () => {
@@ -143,13 +145,41 @@ contract('CourseMarketplace', accounts => {
     })
 
     it('should have status of deactivated and price 0', async () => {
-      await _contract.deactivateCourse(courseHash2, { from: contractOwner })
+      const beforeTxBuyerBalance = await getBalance(buyer)
+      const beforeTxContractBalance = await getBalance(_contract.address)
+      const beforeTxOwnerBalance = await getBalance(currentOwner)
+
+      const result = await _contract.deactivateCourse(courseHash2, { from: contractOwner })
+
+      const afterTxBuyerBalance = await getBalance(buyer)
+      const afterTxContractBalance = await getBalance(_contract.address)
+      const afterTxOwnerBalance = await getBalance(currentOwner)
+
       const course = await _contract.getCourseByHash(courseHash2)
       const expectedState = 2
       const expectedPrice = 0
+      const gas = await getGas(result)
 
       assert.equal(course.state, expectedState, 'Course is NOT deactivated!')
       assert.equal(course.price, expectedPrice, 'Course price is NOT 0!')
+
+      assert.equal(
+        toBN(beforeTxBuyerBalance).add(toBN(value)).toString(),
+        afterTxBuyerBalance,
+        'Buyer balances are not correct.'
+      )
+
+      assert.equal(
+        toBN(beforeTxContractBalance).sub(toBN(value)).toString(),
+        afterTxContractBalance,
+        'Contract balances are not correct.'
+      )
+
+      assert.equal(
+        toBN(beforeTxOwnerBalance).sub(gas).toString(),
+        afterTxOwnerBalance,
+        'Contract owner balances are not correct.'
+      )
     })
 
     it('should NOT be able to activate deactivated course', async () => {
@@ -206,5 +236,7 @@ contract('CourseMarketplace', accounts => {
     it("should NOT be able to repurchase purchased course", async () => {
       await catchRevert(_contract.repurchaseCourse(courseHash2, { from: buyer }))
     })
+
+
   })
 })
